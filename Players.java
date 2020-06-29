@@ -1,6 +1,7 @@
-
+package BlackJack;
 
 import java.util.ArrayList;
+
 
 /**
  * this class contains constructor and methods to create dealer and players.
@@ -22,38 +23,27 @@ public abstract class Players {
 		this.cash_ = cash;
 	}
 	/**
-	 * this method counts ace in player hand.
-	 * @return number of aces in player hand.
-	 */
-	public int countOfAce(){
-		int count = 0;
-		for(int i = 0; i < this.hand_.size(); i++){
-			if(this.hand_.get(i).getRank() == Rank.ACE) count++;
-		}
-		return count;
-	}
-	/**
 	 * this method calculates points of player.	
 	 * @return points of player.
 	 */
-	public int getTotalPoints() {	
+	public int getTotalPoints() {
+		int aces = 0;
 		int points = 0;
-		for(Card c: this.hand_) {
-			if (c.getRank() != Rank.ACE) points += c.getPoints();
-		}
-		for(int i = 0; i < countOfAce(); i++){
-			
-			if(points < 10) {
-				points +=11;
-			}
-			else points += 1;
-			
-			if(this.hand_.size() == 2) {
-				if(this.hand_.get(0).getRank() == Rank.ACE && (this.hand_.get(1).getPoints() == 10)) {
-					points = 21;			
+		if(this.hand_.size() > 0) {
+			for(Card c: this.hand_) {
+				if(c.isUp()) {
+					if(c.getRank() == Rank.ACE) {
+						aces++;
+					} else {
+						points += c.getPoints();
+					}
 				}
-				if(this.hand_.get(1).getRank() == Rank.ACE && (this.hand_.get(0).getPoints() == 10)) {
-					points = 21;
+			}
+			for(int i = 0; i < aces; i++) {
+				if((11 + points) <= 21 ) {
+					points += 11;
+				}else {
+					points += 1;
 				}
 			}
 		}
@@ -61,7 +51,7 @@ public abstract class Players {
 	}
 	/**
 	 * this method gets hand of players
-	 * @return cards in player's hand.
+	 * @return cards on player's hand.
 	 */
 	public String getHand() {
 		String hand = "";
@@ -112,8 +102,8 @@ public abstract class Players {
 		this.cash_ = c;
 	}
 	/**
-	 * this method counts cards in player's hand.
-	 * @return number of cards in player's hand.
+	 * this method counts cards on player's hand.
+	 * @return number of cards on player's hand.
 	 */
 	public int countHand() {
 		return this.hand_.size();
