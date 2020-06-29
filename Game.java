@@ -1,4 +1,5 @@
 
+
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -98,31 +99,47 @@ public class Game {
 			
 			initTable();
 			// Choose bet
-	        for (Players p: this.players) {
+			for (Players p: this.players) {
 				if (p instanceof Player) {
 					if(p.getCash() > 0) {
-						System.out.println(p.getName() +"(" + p.getCash() + "$)" + " Choose your bet: ");
-						((Player) p).bet(a.nextInt());
+						while(true){
+							System.out.println(p.getName() +"(" + p.getCash() + "$)" + " Choose your bet: ");
+							int i = a.nextInt();
+							if(i > p.getCash()){
+								System.out.println("You don't have enough money");
+							}
+							else if(i <= p.getCash()){
+								((Player) p).bet(i);
+								break;
+							}
+						}
 					}
 				}
 			} 
 
+
 			System.out.println(toString());
 	        // Player option
 			for (Players p: this.players) {
+				int count = 0;
 	        	if (p != null && p instanceof Player && p.getCash() >= 0) {
 					while(true) {
-						if(p.getTotalPoints() <= 21) {
+						if(p.getTotalPoints() < 21 && p.countHand() < 5) {
 							System.out.println(p.getName() + " Hit or Stand or Fold (1/2/3): ");
 							int option = a.nextInt();
-							if (option == 1) this.dealer.deal(p, true);
+							if (option == 1) {
+								count ++;
+								this.dealer.deal(p, true);
+								if(count == 3) break;
+							}
 							if (option == 2) break;
 							if (option == 3) {
 								((Player) p).fold();								
 								break;
 							}
 						}			
-						else { 	
+						else {
+							System.out.println(toString());
 							break;
 						}
 						System.out.println(toString());
@@ -157,47 +174,57 @@ public class Game {
 	
 
 	/**
-	 * Win 1, Lose 0, Draw 2, Folded 3.
+	 * Win 1, Lose 0, Draw 2, Folded 3, 4, 5 Win with 5 cards.
 	 * @param dealerPoints opponent points
 	 * @return win, lose or draw
 	 */
 	public void isWinner(Player p, Dealer d) {
 		int dealerPoints = d.getTotalPoints();
 		int playerPoints = p.getTotalPoints();
+		int number = p.countHand();
 		int result = -1;
 		if(p.getCash() >= 0)
-		System.out.print(p.getName() + " " + p.getTotalPoints() + " " + d.getTotalPoints() + " ");
+		System.out.print(p.getName() + " " + p.getTotalPoints() + " " + d.getTotalPoints() + " Dealer ");
 		if (p.f_ == true) {
-			System.out.println(p.getName() + " folded and lost half of his/her bet.");
+			System.out.println(" --- " + p.getName() + " folded and lost half of his/her bet.");
 			result = 3;
 			p.f_ = false;
 		}
 		else if(dealerPoints > 21) {
-			System.out.println("Win");
+			System.out.println("--- Win");
 			result = 1;
-		}else if(p.countHand() == 5 && playerPoints < 21) {
-			System.out.println("Win");
-			result = 1;
+		}
+		else if(number < 5 && playerPoints == 21) {
+			System.out.println("--- Win");
+			result = 4 ;
+		}
+
+		else if(number == 5 && playerPoints <= 21){
+			System.out.println("--- Win");
+			result = 5;
 		}
 		else {
 			if(playerPoints > 21 || playerPoints < dealerPoints) {
-				System.out.println("Lose");
-				result = 0;
-			} else if(playerPoints != dealerPoints) {
-				System.out.println("Win");
+					System.out.println("--- Lose");
+					result = 0;
+			}
+			else if(playerPoints != dealerPoints) {
+				System.out.println("--- Win");
 				result = 1;
-			} else {
-				System.out.println("Draw");
+			} 
+			else {
+				System.out.println("--- Draw");
 				result = 2;
 			}
 		}
-		
 		if (result == 1) p.addCash(p.getBet()*2); 
 		if (result == 2) p.setCash(p.getCash() + p.getBet());
 		if (result == 3) p.setCash(p.getCash() + p.getBet()/2);
-		
+		if (result == 4) p.setCash(p.getCash() + p.getBet()*3);
+		if (result == 5) p.setCash(p.getCash() + p.getBet()*5/2);
+
 	}
-	
+	/*
 	public static void main(String[] args) {
 		Players[] addPlayers = new Players[4];
 		Player p1 = new Player("", 0);
@@ -237,4 +264,5 @@ public class Game {
 		
 		a.close();
 	}
+	*/
 }
